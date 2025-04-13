@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ForensicSync | Add New Case</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="dashboard-body">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-container">
+                <i class="fa-solid fa-dna"></i>
+                <span>ForensicSync</span>
+            </div>
+            <button id="collapse-btn" class="collapse-btn">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li>
+                    <a href="/dashboard">
+                        <i class="fa-solid fa-gauge-high"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/analyze_page">
+                        <i class="fa-solid fa-microscope"></i>
+                        <span>New Analysis</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/cases">
+                        <i class="fa-solid fa-folder-open"></i>
+                        <span>Case Files</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/map">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span>Crime Map</span>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="/add_case">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Add Case</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/reports">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>Reports</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="/">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="dashboard-content">
+        <header class="dash-header">
+            <div class="header-search">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" placeholder="Search cases, reports...">
+            </div>
+            <div class="header-right">
+                <div class="header-notifications">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="badge">3</span>
+                </div>
+                <div class="user-profile">
+                    <img src="{{ url_for('static', filename='images/user-avatar.png') }}" alt="User Avatar">
+                    <span>Detective Sharma</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="dashboard-title">
+            <h1>Add New Case</h1>
+            <p>Enter case details for manual registration</p>
+        </div>
+
+        {% if message %}
+        <div class="success-message">
+            <p>{{ message }}</p>
+        </div>
+        {% endif %}
+
+        {% if error %}
+        <div class="error-message">
+            <p>{{ error }}</p>
+        </div>
+        {% endif %}
+
+        <div class="dashboard-grid">
+            <div class="dashboard-card full-width">
+                <div class="card-header">
+                    <h2>Case Information</h2>
+                </div>
+                <div class="card-body">
+                    <form class="case-form" method="POST" action="/add_case" enctype="multipart/form-data">
+                        <div class="form-section">
+                            <h3>Basic Details</h3>
+                            <div class="input-grid">
+                                <div class="input-box">
+                                    <label for="case_id">Case ID</label>
+                                    <input type="text" id="case_id" name="case_id" placeholder="e.g., CS-2023-090" required>
+                                </div>
+                                <div class="input-box">
+                                    <label for="case_type">Case Type</label>
+                                    <select id="case_type" name="case_type" required>
+                                        <option value="">Select case type</option>
+                                        <option value="Homicide">Homicide</option>
+                                        <option value="Theft">Theft</option>
+                                        <option value="Assault">Assault</option>
+                                        <option value="Burglary">Burglary</option>
+                                        <option value="Fraud">Fraud</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="input-box">
+                                    <label for="case_date">Incident Date</label>
+                                    <input type="date" id="case_date" name="case_date" required>
+                                </div>
+                                <div class="input-box">
+                                    <label for="case_status">Status</label>
+                                    <select id="case_status" name="case_status" required>
+                                        <option value="Active">Active</option>
+                                        <option value="Solved">Solved</option>
+                                        <option value="Pending">Pending</option>
+                                        <option value="Closed">Closed</option>
+                                        <option value="Cold">Cold</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3>Location Details</h3>
+                            <div class="input-grid">
+                                <div class="input-box wide-input">
+                                    <label for="address">Address</label>
+                                    <input type="text" id="address" name="address" placeholder="Enter full address of the incident location">
+                                </div>
+                                <div class="input-box">
+                                    <label for="city">City</label>
+                                    <input type="text" id="city" name="city" placeholder="City">
+                                </div>
+                                <div class="input-box">
+                                    <label for="state">State</label>
+                                    <input type="text" id="state" name="state" placeholder="State">
+                                </div>
+                                <div class="input-box">
+                                    <label for="pincode">Pincode</label>
+                                    <input type="text" id="pincode" name="pincode" placeholder="Pincode">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3>Evidence & Suspects</h3>
+                            <div class="input-grid">
+                                <div class="input-box wide-input">
+                                    <label for="evidence">Evidence Collected</label>
+                                    <textarea id="evidence" name="evidence" placeholder="List all evidence collected from the scene"></textarea>
+                                </div>
+                                <div class="input-box wide-input">
+                                    <label for="suspects">Primary Suspects</label>
+                                    <textarea id="suspects" name="suspects" placeholder="List any known suspects or persons of interest"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3>Upload Files</h3>
+                            <div class="input-grid">
+                                <div class="input-box">
+                                    <label for="crime_scene_photo">Crime Scene Photos</label>
+                                    <input type="file" id="crime_scene_photo" name="crime_scene_photo" accept="image/*" multiple>
+                                </div>
+                                <div class="input-box">
+                                    <label for="report_file">Report PDF</label>
+                                    <input type="file" id="report_file" name="report_file" accept=".pdf">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3>Case Notes</h3>
+                            <div class="input-grid">
+                                <div class="input-box wide-input">
+                                    <label for="case_notes">Detailed Notes</label>
+                                    <textarea id="case_notes" name="case_notes" rows="6" placeholder="Enter detailed case notes, findings, and observations"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="reset" class="btn-secondary">Reset Form</button>
+                            <button type="submit" class="btn-primary">Add Case</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Toggle sidebar
+        document.getElementById('collapse-btn').addEventListener('click', function() {
+            document.body.classList.toggle('sidebar-collapsed');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ForensicSync | Crime Map</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+</head>
+<body class="dashboard-body">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-container">
+                <i class="fa-solid fa-dna"></i>
+                <span>ForensicSync</span>
+            </div>
+            <button id="collapse-btn" class="collapse-btn">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li>
+                    <a href="/dashboard">
+                        <i class="fa-solid fa-gauge-high"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/analyze_page">
+                        <i class="fa-solid fa-microscope"></i>
+                        <span>New Analysis</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/cases">
+                        <i class="fa-solid fa-folder-open"></i>
+                        <span>Case Files</span>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="/map">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span>Crime Map</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/add_case">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Add Case</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/reports">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>Reports</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="/">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="dashboard-content">
+        <header class="dash-header">
+            <div class="header-search">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" placeholder="Search locations, cases...">
+            </div>
+            <div class="header-right">
+                <div class="header-notifications">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="badge">3</span>
+                </div>
+                <div class="user-profile">
+                    <img src="{{ url_for('static', filename='images/user-avatar.png') }}" alt="User Avatar">
+                    <span>Detective Sharma</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="dashboard-title">
+            <h1>Crime Location Map</h1>
+            <p>Geographic analysis of crime incidents</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="dashboard-card full-width map-full">
+                <div class="card-header">
+                    <h2>Crime Hotspots</h2>
+                    <div class="card-actions">
+                        <div class="filter-dropdown">
+                            <select id="crimeTypeFilter">
+                                <option value="all">All Crime Types</option>
+                                <option value="theft">Theft</option>
+                                <option value="assault">Assault</option>
+                                <option value="fraud">Fraud</option>
+                                <option value="burglary">Burglary</option>
+                            </select>
+                        </div>
+                        <div class="date-filter">
+                            <input type="month" id="monthFilter" value="2023-10">
+                        </div>
+                        <button class="btn-primary">Apply Filters</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="mapContainer" style="height: 600px;"></div>
+                </div>
+            </div>
+
+            <div class="dashboard-card half-width">
+                <div class="card-header">
+                    <h2>Location Analysis</h2>
+                </div>
+                <div class="card-body">
+                    <canvas id="locationChart"></canvas>
+                </div>
+            </div>
+
+            <div class="dashboard-card half-width">
+                <div class="card-header">
+                    <h2>Recent Incidents</h2>
+                </div>
+                <div class="card-body">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Location</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for incident in incidents %}
+                            <tr>
+                                <td>{{ incident.date }}</td>
+                                <td>{{ incident.location }}</td>
+                                <td>{{ incident.type }}</td>
+                                <td>
+                                    <span class="status-badge {{ incident.status_class }}">
+                                        {{ incident.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn-icon small view-on-map" data-location="{{ incident.location }}">
+                                        <i class="fa-solid fa-map-marker-alt"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Toggle sidebar
+        document.getElementById('collapse-btn').addEventListener('click', function() {
+            document.body.classList.toggle('sidebar-collapsed');
+        });
+
+        // Initialize the map
+        const map = L.map('mapContainer').setView([28.6139, 77.2090], 11); // New Delhi coordinates
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Sample crime data
+        const crimeData = [
+            { lat: 28.6129, lng: 77.2295, type: "theft", title: "Mobile Phone Theft", description: "Mobile phone snatched near metro station" },
+            { lat: 28.6359, lng: 77.2244, type: "assault", title: "Physical Assault", description: "Victim reported assault near market area" },
+            { lat: 28.5621, lng: 77.2587, type: "fraud", title: "Credit Card Fraud", description: "Unauthorized transactions reported" },
+            { lat: 28.5855, lng: 77.3122, type: "burglary", title: "Home Burglary", description: "Break-in reported during daytime" },
+            { lat: 28.6508, lng: 77.1496, type: "theft", title: "Vehicle Theft", description: "Car stolen from parking lot" },
+            { lat: 28.7041, lng: 77.1025, type: "assault", title: "Assault Case", description: "Physical altercation reported outside restaurant" },
+            { lat: 28.5183, lng: 77.2067, type: "fraud", title: "Online Scam", description: "Victim reported online payment fraud" },
+            { lat: 28.6304, lng: 77.0796, type: "burglary", title: "Shop Break-in", description: "Electronics store burglarized at night" }
+        ];
+
+        // Add markers to the map
+        crimeData.forEach(crime => {
+            let markerColor;
+            switch(crime.type) {
+                case 'theft': markerColor = 'red'; break;
+                case 'assault': markerColor = 'orange'; break;
+                case 'fraud': markerColor = 'blue'; break;
+                case 'burglary': markerColor = 'purple'; break;
+                default: markerColor = 'gray';
+            }
+            
+            const markerIcon = L.divIcon({
+                className: 'custom-marker',
+                html: `<div style="background-color:${markerColor}"><i class="fa-solid fa-exclamation"></i></div>`,
+                iconSize: [25, 25]
+            });
+            
+            L.marker([crime.lat, crime.lng], {icon: markerIcon})
+                .addTo(map)
+                .bindPopup(`<strong>${crime.title}</strong><br>${crime.description}<br><em>Type: ${crime.type}</em>`);
+        });
+
+        // Location Chart
+        const locationCtx = document.getElementById('locationChart').getContext('2d');
+        const locationChart = new Chart(locationCtx, {
+            type: 'bar',
+            data: {
+                labels: ['North Delhi', 'South Delhi', 'East Delhi', 'West Delhi', 'Central Delhi'],
+                datasets: [{
+                    label: 'Crime Incidents',
+                    data: [42, 38, 29, 36, 25],
+                    backgroundColor: [
+                        'rgba(10, 61, 98, 0.7)',
+                        'rgba(60, 99, 130, 0.7)',
+                        'rgba(96, 163, 188, 0.7)',
+                        'rgba(68, 189, 50, 0.7)',
+                        'rgba(225, 177, 44, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(10, 61, 98, 1)',
+                        'rgba(60, 99, 130, 1)',
+                        'rgba(96, 163, 188, 1)',
+                        'rgba(68, 189, 50, 1)',
+                        'rgba(225, 177, 44, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

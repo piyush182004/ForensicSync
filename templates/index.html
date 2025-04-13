@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ForensicSync | Analysis Portal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="modern-theme">
+    <header class="gov-header">
+        <div class="header-container">
+            <div class="logo">ForensicSync</div>
+            <nav class="gov-nav">
+                <ul class="nav-links">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/dashboard">Dashboard</a></li>
+                    <li><a href="/map">Crime Map</a></li>
+                    <li><a href="/add_case">Add Case</a></li>
+                    <li><a href="#upload" class="active">Evidence Upload</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <main class="gov-main">
+        <section class="hero">
+            <h1>Forensic Analysis Portal</h1>
+            <p class="tagline">Secure Evidence Processing & Advanced Crime Scene Analysis</p>
+        </section>
+        
+        <section class="upload-section card-section" id="upload">
+            <h2><span class="section-number">01</span> Evidence Upload</h2>
+            <form class="upload-form" method="POST" action="/analyze_page" enctype="multipart/form-data" id="uploadForm">
+                <div class="upload-grid">
+                    <div class="upload-box">
+                        <label for="crimeScene" class="upload-label">
+                            <div class="upload-icon">📷</div>
+                            <span>Crime Scene Photo</span>
+                            <small>Click to upload or drag & drop</small>
+                        </label>
+                        <input type="file" id="crimeScene" name="crimeScene" accept="image/*" required onchange="previewImage(this, 'crimeScenePreview')">
+                        <div class="image-preview-container" id="crimeScenePreviewContainer" style="display: none;">
+                            <img id="crimeScenePreview" src="#" alt="Crime Scene Preview">
+                        </div>
+                    </div>
+                    <div class="upload-box">
+                        <label for="fingerprint" class="upload-label">
+                            <div class="upload-icon">👆</div>
+                            <span>Fingerprint Evidence</span>
+                            <small>Click to upload or drag & drop</small>
+                        </label>
+                        <input type="file" id="fingerprint" name="fingerprint" accept="image/*" required onchange="previewImage(this, 'fingerprintPreview')">
+                        <div class="image-preview-container" id="fingerprintPreviewContainer" style="display: none;">
+                            <img id="fingerprintPreview" src="#" alt="Fingerprint Preview">
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="upload-btn">Confirm Upload</button>
+            </form>
+
+            {% if error %}
+                <div class="error-message">
+                    <p>{{ error }}</p>
+                </div>
+            {% endif %}
+            
+            {% if crime_scene or fingerprint %}
+                <div class="upload-confirmation">
+                    <h3>Uploaded Evidence</h3>
+                    <div class="image-preview">
+                        {% if crime_scene %}
+                            <div class="preview-box">
+                                <h4>Crime Scene</h4>
+                                <img src="{{ url_for('static', filename=crime_scene) }}" alt="Crime Scene">
+                                <span class="image-check">✓ Verified</span>
+                            </div>
+                        {% endif %}
+                        {% if fingerprint %}
+                            <div class="preview-box">
+                                <h4>Fingerprint</h4>
+                                <img src="{{ url_for('static', filename=fingerprint) }}" alt="Fingerprint">
+                                <span class="image-check">✓ Verified</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <p class="proceed-msg">Please proceed to analysis section below.</p>
+                </div>
+            {% endif %}
+        </section>
+        
+        <section class="analyze-section card-section" id="analyze">
+            <h2><span class="section-number">02</span> Case Details & Analysis</h2>
+            <form class="analyze-form" method="POST" action="/analyze" enctype="multipart/form-data">
+                <div class="input-grid">
+                    <div class="input-box">
+                        <label for="incident_datetime">Incident Date & Time</label>
+                        <input type="datetime-local" id="incident_datetime" name="incident_datetime" required>
+                    </div>
+                    <div class="input-box">
+                        <label for="evidence_found">Evidence Found</label>
+                        <input type="text" id="evidence_found" name="evidence_found" placeholder="e.g., Blood, Hair, Weapon">
+                    </div>
+                    <div class="input-box">
+                        <label for="forced_entry">Forced Entry</label>
+                        <select id="forced_entry" name="forced_entry">
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="Unknown">Unknown</option>
+                        </select>
+                    </div>
+                    <div class="input-box">
+                        <label for="eyewitness">Eyewitness Accounts</label>
+                        <input type="text" id="eyewitness" name="eyewitness" placeholder="e.g., Witness description">
+                    </div>
+                    <div class="input-box">
+                        <label for="motives">Potential Motives</label>
+                        <input type="text" id="motives" name="motives" placeholder="e.g., Robbery, Revenge">
+                    </div>
+                    <div class="input-box">
+                        <label for="unusual_items">Unusual Items</label>
+                        <input type="text" id="unusual_items" name="unusual_items" placeholder="e.g., Note, Symbolic items">
+                    </div>
+                    <div class="input-box">
+                        <label for="time_of_death">Estimated Time of Death</label>
+                        <input type="text" id="time_of_death" name="time_of_death" placeholder="e.g., Between 22:00-00:00">
+                    </div>
+                    <div class="input-box">
+                        <label for="tracks">Tracks or Prints</label>
+                        <input type="text" id="tracks" name="tracks" placeholder="e.g., Footprints, Tire marks">
+                    </div>
+                    <div class="input-box wide-input">
+                        <label for="notes">Case Notes</label>
+                        <textarea id="notes" name="notes" placeholder="General observations and notes about the case"></textarea>
+                    </div>
+                    <div class="input-box wide-input">
+                        <label for="additional_details">Additional Details</label>
+                        <textarea id="additional_details" name="additional_details" placeholder="Any other relevant information, context or circumstances"></textarea>
+                    </div>
+                </div>
+                
+                {% if crime_scene and fingerprint %}
+                    <input type="hidden" name="crime_scene_path" value="{{ crime_scene }}">
+                    <input type="hidden" name="fingerprint_path" value="{{ fingerprint }}">
+                {% else %}
+                    <div class="upload-message error-message">
+                        <p>Please upload crime scene and fingerprint images first using the section above.</p>
+                    </div>
+                    
+                    <div class="upload-grid">
+                        <div class="upload-box">
+                            <label for="crimeScene2" class="upload-label">
+                                <div class="upload-icon">📷</div>
+                                <span>Crime Scene Photo</span>
+                            </label>
+                            <input type="file" id="crimeScene2" name="crimeScene" accept="image/*" required>
+                        </div>
+                        <div class="upload-box">
+                            <label for="fingerprint2" class="upload-label">
+                                <div class="upload-icon">👆</div>
+                                <span>Fingerprint Evidence</span>
+                            </label>
+                            <input type="file" id="fingerprint2" name="fingerprint" accept="image/*" required>
+                        </div>
+                    </div>
+                {% endif %}
+                
+                <button type="submit" class="analyze-btn">Generate Forensic Report</button>
+            </form>
+        </section>
+    </main>
+    
+    <footer class="gov-footer">
+        <div class="footer-container">
+            <div class="footer-logo">
+                <span>ForensicSync</span>
+                <p>Advanced Forensic Analysis</p>
+            </div>
+            <div class="footer-links">
+                <a href="#privacy">Privacy Policy</a>
+                <a href="#terms">Terms of Use</a>
+                <a href="#accessibility">Accessibility</a>
+            </div>
+            <p class="copyright">© 2025 ForensicSync. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function previewImage(input, previewId) {
+            const preview = document.getElementById(previewId);
+            const container = document.getElementById(previewId + 'Container');
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    container.style.display = 'block';
+                }
+                
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+</body>
+</html>

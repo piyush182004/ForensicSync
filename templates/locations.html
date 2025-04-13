@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ForensicSync | Crime Locations</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="dashboard-body">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-container">
+                <i class="fa-solid fa-dna"></i>
+                <span>ForensicSync</span>
+            </div>
+            <button id="collapse-btn" class="collapse-btn">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li>
+                    <a href="/dashboard">
+                        <i class="fa-solid fa-gauge-high"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/analyze_page">
+                        <i class="fa-solid fa-microscope"></i>
+                        <span>New Analysis</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/cases">
+                        <i class="fa-solid fa-folder-open"></i>
+                        <span>Case Files</span>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="/locations">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span>Crime Locations</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/add_case">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Add Case</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/reports">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>Reports</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="/">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="dashboard-content">
+        <header class="dash-header">
+            <div class="header-search">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" placeholder="Search locations...">
+            </div>
+            <div class="header-right">
+                <div class="header-notifications">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="badge">3</span>
+                </div>
+                <div class="user-profile">
+                    <img src="{{ url_for('static', filename='images/user-avatar.png') }}" alt="User Avatar">
+                    <span>Detective Sharma</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="dashboard-title">
+            <h1>Crime Locations Analysis</h1>
+            <p>Geographic distribution of crime incidents across India</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="dashboard-card full-width">
+                <div class="card-header">
+                    <h2>India Crime Heatmap</h2>
+                    <div class="card-actions">
+                        <div class="filter-dropdown">
+                            <select id="timeFilter">
+                                <option value="all">All Time</option>
+                                <option value="month">Last Month</option>
+                                <option value="quarter">Last Quarter</option>
+                                <option value="year">Last Year</option>
+                            </select>
+                        </div>
+                        <div class="filter-dropdown">
+                            <select id="crimeTypeFilter">
+                                <option value="all">All Crime Types</option>
+                                <option value="homicide">Homicide</option>
+                                <option value="theft">Theft</option>
+                                <option value="assault">Assault</option>
+                                <option value="fraud">Fraud</option>
+                                <option value="burglary">Burglary</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body map-full">
+                    <div id="indiaMap" style="height: 600px;"></div>
+                </div>
+            </div>
+
+            <div class="dashboard-card half-width">
+                <div class="card-header">
+                    <h2>Top Crime Locations</h2>
+                </div>
+                <div class="card-body">
+                    <canvas id="citiesChart"></canvas>
+                </div>
+            </div>
+
+            <div class="dashboard-card half-width">
+                <div class="card-header">
+                    <h2>Crime by State</h2>
+                </div>
+                <div class="card-body">
+                    <canvas id="statesChart"></canvas>
+                </div>
+            </div>
+
+            <div class="dashboard-card full-width">
+                <div class="card-header">
+                    <h2>Recent Incidents by Location</h2>
+                </div>
+                <div class="card-body">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Location</th>
+                                <th>City</th>
+                                <th>State</th>
+                                <th>Crime Type</th>
+                                <th>Case ID</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2023-10-15</td>
+                                <td>Connaught Place</td>
+                                <td>New Delhi</td>
+                                <td>Delhi</td>
+                                <td>Theft</td>
+                                <td>CS-2023-089</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                            </tr>
+                            <tr>
+                                <td>2023-10-14</td>
+                                <td>Saket Colony</td>
+                                <td>Jaipur</td>
+                                <td>Rajasthan</td>
+                                <td>Assault</td>
+                                <td>CS-2023-088</td>
+                                <td><span class="status-badge status-solved">Solved</span></td>
+                            </tr>
+                            <tr>
+                                <td>2023-10-13</td>
+                                <td>Indira Nagar</td>
+                                <td>Bengaluru</td>
+                                <td>Karnataka</td>
+                                <td>Burglary</td>
+                                <td>CS-2023-087</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                            </tr>
+                            <tr>
+                                <td>2023-10-12</td>
+                                <td>Salt Lake</td>
+                                <td>Kolkata</td>
+                                <td>West Bengal</td>
+                                <td>Fraud</td>
+                                <td>CS-2023-086</td>
+                                <td><span class="status-badge status-pending">Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td>2023-10-11</td>
+                                <td>Banjara Hills</td>
+                                <td>Hyderabad</td>
+                                <td>Telangana</td>
+                                <td>Theft</td>
+                                <td>CS-2023-085</td>
+                                <td><span class="status-badge status-solved">Solved</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Toggle sidebar
+        document.getElementById('collapse-btn').addEventListener('click', function() {
+            document.body.classList.toggle('sidebar-collapsed');
+        });
+
+        // Initialize the map centered on India
+        const map = L.map('indiaMap').setView([20.5937, 78.9629], 5);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Crime data for various Indian cities
+        const crimeData = [
+            { lat: 28.6139, lng: 77.2090, city: "New Delhi", type: "theft", count: 25 },
+            { lat: 19.0760, lng: 72.8777, city: "Mumbai", type: "burglary", count: 18 },
+            { lat: 12.9716, lng: 77.5946, city: "Bengaluru", type: "fraud", count: 15 },
+            { lat: 22.5726, lng: 88.3639, city: "Kolkata", type: "assault", count: 12 },
+            { lat: 17.3850, lng: 78.4867, city: "Hyderabad", type: "theft", count: 20 },
+            { lat: 13.0827, lng: 80.2707, city: "Chennai", type: "burglary", count: 14 },
+            { lat: 23.0225, lng: 72.5714, city: "Ahmedabad", type: "fraud", count: 10 },
+            { lat: 26.9124, lng: 75.7873, city: "Jaipur", type: "theft", count: 16 },
+            { lat: 18.5204, lng: 73.8567, city: "Pune", type: "assault", count: 9 },
+            { lat: 30.7333, lng: 76.7794, city: "Chandigarh", type: "burglary", count: 7 }
+        ];
+
+        // Add markers for each crime location
+        crimeData.forEach(crime => {
+            let markerColor;
+            switch(crime.type) {
+                case 'theft': markerColor = '#e74c3c'; break; // Red
+                case 'assault': markerColor = '#f39c12'; break; // Orange
+                case 'fraud': markerColor = '#3498db'; break; // Blue
+                case 'burglary': markerColor = '#9b59b6'; break; // Purple
+                default: markerColor = '#7f8c8d'; // Gray
+            }
+            
+            const markerIcon = L.divIcon({
+                className: 'custom-marker',
+                html: `<div style="background-color:${markerColor}; width:${crime.count * 1.2}px; height:${crime.count * 1.2}px;"><span>${crime.count}</span></div>`,
+                iconSize: [crime.count * 1.2, crime.count * 1.2]
+            });
+            
+            L.marker([crime.lat, crime.lng], {icon: markerIcon})
+                .addTo(map)
+                .bindPopup(`<strong>${crime.city}</strong><br>Crime type: ${crime.type}<br>Incidents: ${crime.count}`);
+        });
+
+        // Top cities chart
+        const citiesCtx = document.getElementById('citiesChart').getContext('2d');
+        const citiesChart = new Chart(citiesCtx, {
+            type: 'bar',
+            data: {
+                labels: crimeData.map(c => c.city),
+                datasets: [{
+                    label: 'Crime Incidents',
+                    data: crimeData.map(c => c.count),
+                    backgroundColor: [
+                        'rgba(10, 61, 98, 0.7)',
+                        'rgba(231, 76, 60, 0.7)',
+                        'rgba(46, 204, 113, 0.7)',
+                        'rgba(155, 89, 182, 0.7)',
+                        'rgba(52, 152, 219, 0.7)',
+                        'rgba(241, 196, 15, 0.7)',
+                        'rgba(230, 126, 34, 0.7)',
+                        'rgba(149, 165, 166, 0.7)',
+                        'rgba(192, 57, 43, 0.7)',
+                        'rgba(22, 160, 133, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(10, 61, 98, 1)',
+                        'rgba(231, 76, 60, 1)',
+                        'rgba(46, 204, 113, 1)',
+                        'rgba(155, 89, 182, 1)',
+                        'rgba(52, 152, 219, 1)',
+                        'rgba(241, 196, 15, 1)',
+                        'rgba(230, 126, 34, 1)',
+                        'rgba(149, 165, 166, 1)',
+                        'rgba(192, 57, 43, 1)',
+                        'rgba(22, 160, 133, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Incidents'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'City'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Crime Incidents by City'
+                    }
+                }
+            }
+        });
+
+        // States chart - grouped crimes by state
+        const stateData = [
+            { state: 'Delhi', incidents: 42 },
+            { state: 'Maharashtra', incidents: 38 },
+            { state: 'Karnataka', incidents: 29 },
+            { state: 'West Bengal', incidents: 25 },
+            { state: 'Telangana', incidents: 32 },
+            { state: 'Tamil Nadu', incidents: 26 },
+            { state: 'Gujarat', incidents: 21 }
+        ];
+
+        const statesCtx = document.getElementById('statesChart').getContext('2d');
+        const statesChart = new Chart(statesCtx, {
+            type: 'pie',
+            data: {
+                labels: stateData.map(s => s.state),
+                datasets: [{
+                    data: stateData.map(s => s.incidents),
+                    backgroundColor: [
+                        '#0a3d62',
+                        '#e74c3c',
+                        '#2ecc71',
+                        '#9b59b6',
+                        '#3498db',
+                        '#f1c40f',
+                        '#e67e22'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Crime Distribution by State'
+                    },
+                    legend: {
+                        position: 'right'
+                    }
+                }
+            }
+        });
+
+        // Filters functionality would go here in a real app
+        document.getElementById('timeFilter').addEventListener('change', function() {
+            console.log('Time filter changed to:', this.value);
+            // Would update maps and charts
+        });
+
+        document.getElementById('crimeTypeFilter').addEventListener('change', function() {
+            console.log('Crime type filter changed to:', this.value);
+            // Would update maps and charts
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+[
+    {
+        "name": "Rajesh Kumar",
+        "age": 34,
+        "address": "42-B, Patel Nagar, New Delhi, Delhi"
+    },
+    {
+        "name": "Priya Sharma",
+        "age": 28,
+        "address": "103 Saket Colony, Jaipur, Rajasthan"
+    },
+    {
+        "name": "Vikram Singh",
+        "age": 45,
+        "address": "27/4 Indira Nagar, Bengaluru, Karnataka"
+    },
+    {
+        "name": "Ananya Patel",
+        "age": 31,
+        "address": "501 Shanti Apartments, Ahmedabad, Gujarat"
+    },
+    {
+        "name": "Suresh Verma",
+        "age": 52,
+        "address": "12 Lakshmi Road, Pune, Maharashtra"
+    },
+    {
+        "name": "Deepika Agarwal",
+        "age": 26,
+        "address": "78 Civil Lines, Kanpur, Uttar Pradesh"
+    },
+    {
+        "name": "Arun Mehta",
+        "age": 38,
+        "address": "24 Salt Lake, Kolkata, West Bengal"
+    },
+    {
+        "name": "Kavita Reddy",
+        "age": 42,
+        "address": "15-8-432 Banjara Hills, Hyderabad, Telangana"
+    },
+    {
+        "name": "Manish Gupta",
+        "age": 29,
+        "address": "56 Model Town, Chandigarh, Punjab"
+    },
+    {
+        "name": "Shweta Joshi",
+        "age": 33,
+        "address": "203 Viman Nagar, Mumbai, Maharashtra"
+    }
+]

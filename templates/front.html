@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ForensicSync | Advanced Forensic Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="modern-theme">
+    <header class="gov-header">
+        <div class="header-container">
+            <div class="logo"><i class="fa-solid fa-dna"></i> ForensicSync</div>
+            <nav class="gov-nav">
+                <ul class="nav-links">
+                    <li><a href="#home" class="active">Home</a></li>
+                    <li><a href="/dashboard">Dashboard</a></li>
+                    <li><a href="/analyze_page">Analysis</a></li>
+                    <li><a href="/map">Crime Map</a></li>
+                    <li><a href="/add_case">Add Case</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    
+    <main>
+        <section id="home" class="hero-banner">
+            <div class="hero-content">
+                <h1>ForensicSync</h1>
+                <p>Decoding Crime Scenes with AI Precision</p>
+                <div class="hero-btns">
+                    <a href="/dashboard" class="primary-btn">Go to Dashboard</a>
+                    <a href="/analyze_page" class="secondary-btn">Start Analysis</a>
+                </div>
+            </div>
+        </section>
+        
+        <section id="features" class="features-section">
+            <div class="container">
+                <h2>Key Features</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🔍</div>
+                        <h3>AI-Powered Analysis</h3>
+                        <p>Advanced object detection and forensic analysis using state-of-the-art models</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">👆</div>
+                        <h3>Fingerprint Processing</h3>
+                        <p>Rapid identification and classification of fingerprint evidence</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📋</div>
+                        <h3>Comprehensive Reports</h3>
+                        <p>Generate detailed forensic reports with evidence-based insights</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔒</div>
+                        <h3>Secure Analysis</h3>
+                        <p>End-to-end security for sensitive crime scene data</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="about" class="about-section">
+            <div class="container">
+                <div class="about-content">
+                    <div class="about-text">
+                        <h2>About ForensicSync</h2>
+                        <p>ForensicSync is a state-of-the-art platform designed for law enforcement agencies to streamline crime scene investigation. Our system combines AI-powered analysis with traditional forensic methods to provide comprehensive insights.</p>
+                        <a href="/analyze_page" class="cta-btn">Access Portal</a>
+                    </div>
+                    <div class="about-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">99.7%</span>
+                            <span class="stat-label">Accuracy</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">3min</span>
+                            <span class="stat-label">Avg. Analysis Time</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">1000+</span>
+                            <span class="stat-label">Cases Processed</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer class="gov-footer">
+        <div class="footer-container">
+            <div class="footer-logo">
+                <span>ForensicSync</span>
+                <p>Advanced Forensic Analysis</p>
+            </div>
+            <div class="footer-links">
+                <a href="#privacy">Privacy Policy</a>
+                <a href="#terms">Terms of Use</a>
+                <a href="#contact">Contact</a>
+            </div>
+            <p class="copyright">© 2025 ForensicSync. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

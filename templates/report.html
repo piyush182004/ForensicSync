@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ForensicSync | Report</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}">
+</head>
+<body>
+    <header class="gov-header">
+        <div class="header-container">
+            <div class="logo">ForensicSync</div>
+            <nav class="gov-nav">
+                <ul class="nav-links">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/dashboard">Dashboard</a></li>
+                    <li><a href="/analyze_page">New Analysis</a></li>
+                    <li><a href="/map">Crime Map</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <main class="gov-main">
+        <section class="hero">
+            <h1>Forensic Report</h1>
+            <p class="tagline">Generated: {{ report.date_generated }}</p>
+        </section>
+        <section class="report-section">
+            {% if report.error %}
+                <div class="report-box">
+                    <h2>Error</h2>
+                    <p>{{ report.error }}</p>
+                </div>
+            {% else %}
+                <div class="report-box">
+                    <h2>Evidence Preview</h2>
+                    <div class="image-preview">
+                        <div class="preview-box">
+                            <h3>Crime Scene</h3>
+                            <img src="{{ url_for('static', filename=report.crime_scene_img) }}" alt="Crime Scene">
+                        </div>
+                        <div class="preview-box">
+                            <h3>Fingerprint</h3>
+                            <img src="{{ url_for('static', filename=report.fingerprint_img) }}" alt="Fingerprint">
+                        </div>
+                    </div>
+                </div>
+                <div class="report-box">
+                    <h2>Fingerprint Analysis from Adhar Database</h2>
+                    <p>Blood Group: {{ report.blood_group }}</p>
+                    <p>Suspect: {{ report.suspect.name }}, Age: {{ report.suspect.age }}</p>
+                </div>
+                <div class="report-box">
+                    <h2>Crime Scene Analysis</h2>
+                    <p>{{ report.crime_analysis }}</p>
+                </div>
+                <form method="POST" action="/download_pdf">
+                    <input type="hidden" name="blood_group" value="{{ report.blood_group }}">
+                    <input type="hidden" name="suspect_name" value="{{ report.suspect.name }}">
+                    <input type="hidden" name="suspect_age" value="{{ report.suspect.age }}">
+                    <input type="hidden" name="suspect_address" value="{{ report.suspect.address }}">
+                    <input type="hidden" name="crime_analysis" value="{{ report.crime_analysis }}">
+                    <input type="hidden" name="incident_datetime" value="{{ report.form_data.incident_datetime }}">
+                    <input type="hidden" name="evidence_found" value="{{ report.form_data.evidence_found }}">
+                    <input type="hidden" name="forced_entry" value="{{ report.form_data.forced_entry }}">
+                    <input type="hidden" name="eyewitness" value="{{ report.form_data.eyewitness }}">
+                    <input type="hidden" name="motives" value="{{ report.form_data.motives }}">
+                    <input type="hidden" name="unusual_items" value="{{ report.form_data.unusual_items }}">
+                    <input type="hidden" name="time_of_death" value="{{ report.form_data.time_of_death }}">
+                    <input type="hidden" name="tracks" value="{{ report.form_data.tracks }}">
+                    <input type="hidden" name="notes" value="{{ report.form_data.notes }}">
+                    <input type="hidden" name="date_generated" value="{{ report.date_generated }}">
+                    <button type="submit" class="report-btn">Download PDF</button>
+                </form>
+            {% endif %}
+        </section>
+    </main>
+    <footer class="gov-footer">
+        <div class="footer-container">
+            <p>© 2025 ForensicSync. All Rights Reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
